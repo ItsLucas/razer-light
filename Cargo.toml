@@ -1,0 +1,12 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/razer-core",
+    "crates/razer-cli",
+    "crates/razer-gui",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
