@@ -61,6 +61,12 @@ pub const SUPPORTED_DEVICES: &[DeviceDescriptor] = &[
         pid: 0x02C6,
         features: &[Feature::Fan, Feature::Perf, Feature::BatteryCare, Feature::KbdBacklight, Feature::LidLogo, Feature::LightsAlwaysOn],
     },
+    DeviceDescriptor {
+        sku_prefix: "RZ09-05818",
+        name: "Razer Blade 16 (2026) RTX 5080",
+        pid: 0x02E0,
+        features: &[Feature::Fan, Feature::Perf, Feature::BatteryCare, Feature::KbdBacklight, Feature::LidLogo, Feature::LightsAlwaysOn],
+    },
 ];
 
 /// Read the system SKU and find a matching device descriptor.
