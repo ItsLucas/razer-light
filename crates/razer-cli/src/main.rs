@@ -18,7 +18,10 @@ struct Cli {
 }
 
 fn parse_hex_u16(s: &str) -> Result<u16, String> {
-    let s = s.strip_prefix("0x").or_else(|| s.strip_prefix("0X")).unwrap_or(s);
+    let s = s
+        .strip_prefix("0x")
+        .or_else(|| s.strip_prefix("0X"))
+        .unwrap_or(s);
     u16::from_str_radix(s, 16).map_err(|e| format!("Invalid hex PID: {e}"))
 }
 
@@ -169,7 +172,13 @@ impl From<PerfModeArg> for PerfMode {
 }
 
 #[derive(Clone, Copy, ValueEnum)]
-enum CpuBoostArg { Low, Medium, High, Boost, Overclock }
+enum CpuBoostArg {
+    Low,
+    Medium,
+    High,
+    Boost,
+    Overclock,
+}
 
 impl From<CpuBoostArg> for CpuBoost {
     fn from(a: CpuBoostArg) -> Self {
@@ -184,7 +193,11 @@ impl From<CpuBoostArg> for CpuBoost {
 }
 
 #[derive(Clone, Copy, ValueEnum)]
-enum GpuBoostArg { Low, Medium, High }
+enum GpuBoostArg {
+    Low,
+    Medium,
+    High,
+}
 
 impl From<GpuBoostArg> for GpuBoost {
     fn from(a: GpuBoostArg) -> Self {
@@ -197,10 +210,16 @@ impl From<GpuBoostArg> for GpuBoost {
 }
 
 #[derive(Clone, Copy, ValueEnum)]
-enum FanModeArg { Auto, Manual }
+enum FanModeArg {
+    Auto,
+    Manual,
+}
 
 #[derive(Clone, Copy, ValueEnum)]
-enum Toggle { Enable, Disable }
+enum Toggle {
+    Enable,
+    Disable,
+}
 
 #[derive(Clone, Copy, ValueEnum)]
 enum BatteryCareArg {
@@ -238,7 +257,11 @@ impl From<BatteryCareArg> for BatteryCare {
 }
 
 #[derive(Clone, Copy, ValueEnum)]
-enum LogoModeArg { Off, Static, Breathing }
+enum LogoModeArg {
+    Off,
+    Static,
+    Breathing,
+}
 
 impl From<LogoModeArg> for LogoMode {
     fn from(a: LogoModeArg) -> Self {
@@ -303,14 +326,25 @@ fn cmd_enumerate() -> anyhow::Result<()> {
             d.interface_number,
             d.usage_page,
             d.usage,
-            if d.product.is_empty() { "?" } else { &d.product },
+            if d.product.is_empty() {
+                "?"
+            } else {
+                &d.product
+            },
             if new_pid { "" } else { " (dup)" },
         );
     }
 
     // Show unique PIDs
     let unique: Vec<_> = seen_pids.into_iter().collect();
-    println!("\nUnique PIDs: {}", unique.iter().map(|p| format!("0x{p:04X}")).collect::<Vec<_>>().join(", "));
+    println!(
+        "\nUnique PIDs: {}",
+        unique
+            .iter()
+            .map(|p| format!("0x{p:04X}"))
+            .collect::<Vec<_>>()
+            .join(", ")
+    );
     Ok(())
 }
 
@@ -333,7 +367,11 @@ fn cmd_info(device: &Device) -> anyhow::Result<()> {
     if let Some(bat) = state.battery_care {
         println!("  Battery Care     : {} (0x{:02X})", bat.label(), bat as u8);
     }
-    println!("  Kbd Brightness   : {} ({}%)", state.kbd_brightness, state.kbd_brightness as u32 * 100 / 255);
+    println!(
+        "  Kbd Brightness   : {} ({}%)",
+        state.kbd_brightness,
+        state.kbd_brightness as u32 * 100 / 255
+    );
     if let Some(logo) = state.logo_mode {
         println!("  Logo Mode        : {:?}", logo);
     }
@@ -409,7 +447,10 @@ fn cmd_fan(device: &Device, action: FanAction) -> anyhow::Result<()> {
         FanAction::MaxSpeed { toggle } => {
             let enabled = matches!(toggle, Toggle::Enable);
             commands::set_max_fan_speed(device, enabled)?;
-            println!("Max fan speed: {}", if enabled { "enabled" } else { "disabled" });
+            println!(
+                "Max fan speed: {}",
+                if enabled { "enabled" } else { "disabled" }
+            );
         }
     }
     Ok(())
@@ -464,14 +505,23 @@ fn cmd_raw(device: &Device, command: u16, args: Vec<String>) -> anyhow::Result<(
         .iter()
         .flat_map(|s| s.split_whitespace())
         .map(|s| {
-            let s = s.strip_prefix("0x").or_else(|| s.strip_prefix("0X")).unwrap_or(s);
+            let s = s
+                .strip_prefix("0x")
+                .or_else(|| s.strip_prefix("0X"))
+                .unwrap_or(s);
             u8::from_str_radix(s, 16)
         })
         .collect::<Result<Vec<_>, _>>()
         .map_err(|e| anyhow::anyhow!("Invalid hex arg byte: {e}"))?;
 
-    println!("Sending cmd=0x{command:04X} args=[{}]",
-        arg_bytes.iter().map(|b| format!("{b:02x}")).collect::<Vec<_>>().join(" "));
+    println!(
+        "Sending cmd=0x{command:04X} args=[{}]",
+        arg_bytes
+            .iter()
+            .map(|b| format!("{b:02x}"))
+            .collect::<Vec<_>>()
+            .join(" ")
+    );
 
     let request = Packet::new(command, &arg_bytes);
     println!("TX: {request}");

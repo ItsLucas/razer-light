@@ -2,7 +2,7 @@ use crate::device::Device;
 use crate::packet::Packet;
 use crate::types::*;
 
-use anyhow::{ensure, Result};
+use anyhow::{Result, ensure};
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -87,7 +87,11 @@ pub fn get_fan_actual_rpm(device: &Device, zone: FanZone) -> Result<u16> {
 }
 
 pub fn set_max_fan_speed(device: &Device, enabled: bool) -> Result<()> {
-    let mode = if enabled { MaxFanSpeed::Enabled } else { MaxFanSpeed::Disabled };
+    let mode = if enabled {
+        MaxFanSpeed::Enabled
+    } else {
+        MaxFanSpeed::Disabled
+    };
     send_cmd(device, 0x070F, &[mode as u8])?;
     Ok(())
 }

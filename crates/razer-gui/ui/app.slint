@@ -1,0 +1,425 @@
+import { Button, Slider, CheckBox } from "std-widgets.slint";
+
+component ChoiceButton inherits Rectangle {
+    in property <string> label;
+    in property <string> detail;
+    in property <bool> selected;
+    callback clicked();
+
+    min-width: 0px;
+    preferred-width: 0px;
+    horizontal-stretch: 1;
+    height: 38px;
+    border-radius: 4px;
+    border-width: selected ? 2px : 1px;
+    border-color: selected ? #00b894 : #3d3d3d;
+    background: selected ? #343434 : #2b2b2b;
+
+    TouchArea { clicked => { root.clicked(); } }
+
+    VerticalLayout {
+        alignment: center;
+        spacing: 1px;
+        padding-left: 4px;
+        padding-right: 4px;
+
+        Text {
+            text: root.label;
+            color: #f1f1f1;
+            font-size: 12px;
+            horizontal-alignment: center;
+            font-weight: 700;
+        }
+
+        Text {
+            text: root.detail;
+            color: #b8b8b8;
+            font-size: 10px;
+            horizontal-alignment: center;
+        }
+    }
+}
+
+component EmptySlot inherits Rectangle {
+    min-width: 0px;
+    preferred-width: 0px;
+    horizontal-stretch: 1;
+    height: 38px;
+}
+
+component ToggleSlot inherits Rectangle {
+    in-out property <bool> checked;
+    callback toggled(bool);
+
+    min-width: 0px;
+    preferred-width: 0px;
+    horizontal-stretch: 1;
+    height: 38px;
+    border-radius: 4px;
+    background: #232323;
+    border-width: 1px;
+    border-color: #343434;
+
+    HorizontalLayout {
+        padding-left: 8px;
+        padding-right: 8px;
+        CheckBox {
+            text: "Max";
+            checked: root.checked;
+            toggled => {
+                root.checked = self.checked;
+                root.toggled(self.checked);
+            }
+        }
+    }
+}
+
+component TempTile inherits Rectangle {
+    in property <string> label;
+    in property <string> value;
+
+    min-width: 0px;
+    preferred-width: 0px;
+    horizontal-stretch: 1;
+    height: 38px;
+    border-radius: 4px;
+    background: #2b2b2b;
+    border-width: 1px;
+    border-color: #3d3d3d;
+
+    HorizontalLayout {
+        padding-left: 10px;
+        padding-right: 10px;
+        spacing: 8px;
+        Text {
+            text: root.label;
+            color: #d8d8d8;
+            font-size: 12px;
+            font-weight: 700;
+            vertical-alignment: center;
+        }
+        Rectangle { width: 1px; }
+        Text {
+            text: root.value;
+            color: root.value == "" ? #777777 : #f1f1f1;
+            font-size: 12px;
+            font-weight: 700;
+            horizontal-alignment: right;
+            vertical-alignment: center;
+        }
+    }
+}
+
+component TabButton inherits Rectangle {
+    in property <string> label;
+    in property <bool> selected;
+    callback clicked();
+
+    min-width: 0px;
+    preferred-width: 0px;
+    horizontal-stretch: 1;
+    height: 28px;
+    border-radius: 4px;
+    background: selected ? #343434 : #252525;
+    border-width: 1px;
+    border-color: selected ? #00b894 : #353535;
+
+    TouchArea { clicked => { root.clicked(); } }
+
+    Text {
+        text: root.label;
+        color: selected ? #ffffff : #c8c8c8;
+        font-size: 12px;
+        font-weight: 700;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+}
+
+component SectionHeader inherits HorizontalLayout {
+    in property <string> title;
+    in property <string> value;
+
+    height: 18px;
+    Text {
+        text: root.title;
+        color: #f1f1f1;
+        font-size: 12px;
+        font-weight: 800;
+        vertical-alignment: center;
+    }
+    Rectangle { width: 1px; }
+    Text {
+        text: root.value;
+        color: #cfcfcf;
+        font-size: 11px;
+        horizontal-alignment: right;
+        vertical-alignment: center;
+    }
+}
+
+component PanelSection inherits Rectangle {
+    in property <string> title;
+    in property <string> value;
+
+    background: #232323;
+    border-color: #343434;
+    border-width: 1px;
+    border-radius: 4px;
+
+    VerticalLayout {
+        padding: 5px;
+        spacing: 4px;
+        SectionHeader { title: root.title; value: root.value; }
+        @children
+    }
+}
+
+export component AppWindow inherits Window {
+    title: "RazerLight";
+    width: 430px;
+    height: 650px;
+    background: #1e1e1e;
+
+    in-out property <bool> connected: false;
+    in-out property <string> device-name: "No device";
+    in-out property <string> status-text: "Disconnected";
+    in-out property <string> error-text: "";
+    in-out property <string> perf-mode: "Balanced";
+    in-out property <string> fan-mode: "Auto";
+    in-out property <string> cpu-fan-text: "CPU Fan: 0 RPM";
+    in-out property <string> gpu-fan-text: "GPU Fan: 0 RPM";
+    in-out property <float> fan-target-rpm: 2500;
+    in-out property <string> cpu-boost: "Unavailable";
+    in-out property <string> gpu-boost: "Unavailable";
+    in-out property <float> battery-limit: 80;
+    in-out property <string> battery-text: "Battery Charge Limit: 80%";
+    in-out property <float> keyboard-brightness: 0;
+    in-out property <string> keyboard-text: "Keyboard Brightness: 0%";
+    in-out property <string> logo-mode: "Unsupported";
+    in-out property <string> cpu-temp-text: "";
+    in-out property <string> gpu-temp-text: "";
+    in-out property <bool> max-fan-enabled: false;
+    in-out property <int> active-page: 0;
+
+    callback connect();
+    callback refresh();
+    callback set-perf-mode(string);
+    callback set-fan-mode(string);
+    callback apply-fan-rpm(float);
+    callback set-max-fan(bool);
+    callback set-cpu-boost(string);
+    callback set-gpu-boost(string);
+    callback set-battery-limit(float);
+    callback set-keyboard-brightness(float);
+    callback set-logo-mode(string);
+
+    VerticalLayout {
+        padding: 8px;
+        spacing: 5px;
+
+        HorizontalLayout {
+            height: 26px;
+            Text {
+                text: "RazerLight";
+                color: #f5f5f5;
+                font-size: 14px;
+                font-weight: 800;
+                vertical-alignment: center;
+            }
+            Rectangle { width: 1px; }
+            Text {
+                text: root.device-name;
+                color: root.connected ? #cfcfcf : #ff7675;
+                font-size: 11px;
+                horizontal-alignment: right;
+                vertical-alignment: center;
+            }
+        }
+
+        if root.error-text != "" : Rectangle {
+            height: 32px;
+            border-radius: 4px;
+            background: #3a2525;
+            border-color: #774040;
+            border-width: 1px;
+            Text {
+                text: root.error-text;
+                color: #ffb8b8;
+                font-size: 11px;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+            }
+        }
+
+        HorizontalLayout {
+            height: 28px;
+            spacing: 6px;
+            TabButton { label: "Performance"; selected: root.active-page == 0; clicked => { root.active-page = 0; } }
+            TabButton { label: "Lighting"; selected: root.active-page == 1; clicked => { root.active-page = 1; } }
+            TabButton { label: "Power"; selected: root.active-page == 2; clicked => { root.active-page = 2; } }
+        }
+
+        if root.active-page == 0 : VerticalLayout {
+            spacing: 5px;
+            PanelSection {
+                title: "Mode: " + root.perf-mode;
+                value: root.status-text;
+
+                HorizontalLayout {
+                    spacing: 6px;
+                    ChoiceButton { label: "Silent"; detail: "Quiet"; selected: root.perf-mode == "Silent"; clicked => { root.set-perf-mode("Silent"); } }
+                    ChoiceButton { label: "Balanced"; detail: "Daily"; selected: root.perf-mode == "Balanced"; clicked => { root.set-perf-mode("Balanced"); } }
+                    ChoiceButton { label: "Turbo"; detail: "Fast"; selected: root.perf-mode == "Performance"; clicked => { root.set-perf-mode("Performance"); } }
+                    EmptySlot { }
+                }
+                HorizontalLayout {
+                    spacing: 6px;
+                    ChoiceButton { label: "Custom"; detail: "Tuned"; selected: root.perf-mode == "Custom"; clicked => { root.set-perf-mode("Custom"); } }
+                    ChoiceButton { label: "Battery"; detail: "Saver"; selected: root.perf-mode == "Battery Saver"; clicked => { root.set-perf-mode("Battery Saver"); } }
+                    ChoiceButton { label: "Hyper"; detail: "Boost"; selected: root.perf-mode == "Hyperboost"; clicked => { root.set-perf-mode("Hyperboost"); } }
+                    EmptySlot { }
+                }
+            }
+
+            PanelSection {
+                title: "Fans: " + root.fan-mode;
+                value: root.cpu-fan-text;
+
+                Text { text: root.gpu-fan-text; color: #d8d8d8; font-size: 11px; }
+                HorizontalLayout {
+                    spacing: 6px;
+                    ChoiceButton { label: "Auto"; detail: "Curve"; selected: root.fan-mode == "Auto"; clicked => { root.set-fan-mode("Auto"); } }
+                    ChoiceButton { label: "Manual"; detail: "RPM"; selected: root.fan-mode == "Manual"; clicked => { root.set-fan-mode("Manual"); } }
+                    ToggleSlot { checked: root.max-fan-enabled; toggled(enabled) => { root.max-fan-enabled = enabled; root.set-max-fan(enabled); } }
+                    EmptySlot { }
+                }
+                HorizontalLayout {
+                    height: 30px;
+                    spacing: 8px;
+                    Slider { width: 310px; minimum: 0; maximum: 5500; value: root.fan-target-rpm; changed(value) => { root.fan-target-rpm = value; } }
+                    Button { width: 82px; text: "Apply"; clicked => { root.apply-fan-rpm(root.fan-target-rpm); } }
+                    Rectangle { horizontal-stretch: 1; }
+                }
+            }
+
+            PanelSection {
+                title: "Temperatures";
+                value: "Monitoring";
+
+                HorizontalLayout {
+                    spacing: 6px;
+                    TempTile { label: "CPU"; value: root.cpu-temp-text; }
+                    TempTile { label: "GPU"; value: root.gpu-temp-text; }
+                    EmptySlot { }
+                    EmptySlot { }
+                }
+            }
+
+            PanelSection {
+                title: "CPU / GPU Boost";
+                value: root.perf-mode == "Custom" ? "Custom" : "Custom required";
+
+                Text { text: "CPU: " + root.cpu-boost; color: #d8d8d8; font-size: 11px; }
+                HorizontalLayout {
+                    spacing: 6px;
+                    ChoiceButton { label: "Low"; detail: "CPU"; selected: root.cpu-boost == "Low"; clicked => { root.set-cpu-boost("Low"); } }
+                    ChoiceButton { label: "Medium"; detail: "CPU"; selected: root.cpu-boost == "Medium"; clicked => { root.set-cpu-boost("Medium"); } }
+                    ChoiceButton { label: "High"; detail: "CPU"; selected: root.cpu-boost == "High"; clicked => { root.set-cpu-boost("High"); } }
+                    ChoiceButton { label: "Boost"; detail: "CPU"; selected: root.cpu-boost == "Boost"; clicked => { root.set-cpu-boost("Boost"); } }
+                }
+                Text { text: "GPU: " + root.gpu-boost; color: #d8d8d8; font-size: 11px; }
+                HorizontalLayout {
+                    spacing: 6px;
+                    ChoiceButton { label: "Low"; detail: "GPU"; selected: root.gpu-boost == "Low"; clicked => { root.set-gpu-boost("Low"); } }
+                    ChoiceButton { label: "Medium"; detail: "GPU"; selected: root.gpu-boost == "Medium"; clicked => { root.set-gpu-boost("Medium"); } }
+                    ChoiceButton { label: "High"; detail: "GPU"; selected: root.gpu-boost == "High"; clicked => { root.set-gpu-boost("High"); } }
+                    EmptySlot { }
+                }
+            }
+        }
+
+        if root.active-page == 1 : VerticalLayout {
+            spacing: 5px;
+            PanelSection {
+                title: root.keyboard-text;
+                value: "Keyboard";
+
+                HorizontalLayout {
+                    height: 30px;
+                    spacing: 8px;
+                    Slider { width: 310px; minimum: 0; maximum: 100; value: root.keyboard-brightness; changed(value) => { root.keyboard-brightness = value; } }
+                    Button { width: 82px; text: "Apply"; clicked => { root.set-keyboard-brightness(root.keyboard-brightness); } }
+                    Rectangle { horizontal-stretch: 1; }
+                }
+            }
+
+            PanelSection {
+                title: "Logo";
+                value: root.logo-mode;
+
+                HorizontalLayout {
+                    spacing: 6px;
+                    ChoiceButton { label: "Off"; detail: "Logo"; selected: root.logo-mode == "Off"; clicked => { root.set-logo-mode("Off"); } }
+                    ChoiceButton { label: "Static"; detail: "Logo"; selected: root.logo-mode == "Static"; clicked => { root.set-logo-mode("Static"); } }
+                    ChoiceButton { label: "Breathe"; detail: "Logo"; selected: root.logo-mode == "Breathing"; clicked => { root.set-logo-mode("Breathing"); } }
+                    EmptySlot { }
+                }
+            }
+        }
+
+        if root.active-page == 2 : VerticalLayout {
+            spacing: 5px;
+            PanelSection {
+                title: root.battery-text;
+                value: "Charge limit";
+
+                HorizontalLayout {
+                    height: 30px;
+                    spacing: 8px;
+                    Slider {
+                        width: 310px;
+                        minimum: 50;
+                        maximum: 100;
+                        value: root.battery-limit;
+                        changed(value) => {
+                            root.battery-limit = value < 53 ? 50 : value < 58 ? 55 : value < 63 ? 60 : value < 68 ? 65 : value < 73 ? 70 : value < 78 ? 75 : value < 90 ? 80 : 100;
+                            root.set-battery-limit(root.battery-limit);
+                        }
+                    }
+                    Text {
+                        width: 82px;
+                        text: root.battery-limit == 100 ? "Off" : root.battery-limit + "%";
+                        color: #f1f1f1;
+                        font-size: 13px;
+                        font-weight: 700;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                    }
+                    Rectangle { horizontal-stretch: 1; }
+                }
+                HorizontalLayout {
+                    height: 18px;
+                    Text { text: "50"; color: #9f9f9f; font-size: 10px; horizontal-alignment: left; }
+                    Text { text: "55"; color: #9f9f9f; font-size: 10px; horizontal-alignment: center; }
+                    Text { text: "60"; color: #9f9f9f; font-size: 10px; horizontal-alignment: center; }
+                    Text { text: "65"; color: #9f9f9f; font-size: 10px; horizontal-alignment: center; }
+                    Text { text: "70"; color: #9f9f9f; font-size: 10px; horizontal-alignment: center; }
+                    Text { text: "75"; color: #9f9f9f; font-size: 10px; horizontal-alignment: center; }
+                    Text { text: "80"; color: #9f9f9f; font-size: 10px; horizontal-alignment: center; }
+                    Text { text: "Off"; color: #9f9f9f; font-size: 10px; horizontal-alignment: right; }
+                    Rectangle { width: 90px; }
+                }
+            }
+        }
+
+        Rectangle { vertical-stretch: 1; }
+        Rectangle { height: 1px; background: #343434; }
+        HorizontalLayout {
+            height: 30px;
+            Text { text: "Version 0.1.0"; color: #8f8f8f; font-size: 11px; vertical-alignment: center; }
+            Rectangle { width: 1px; }
+            Button { text: root.connected ? "Refresh" : "Connect"; clicked => { root.connected ? root.refresh() : root.connect(); } }
+        }
+    }
+}
