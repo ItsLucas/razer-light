@@ -239,8 +239,8 @@ export component AppWindow inherits Window {
                 horizontal-alignment: right;
                 vertical-alignment: center;
             }
-            Button { width: 42px; text: "EN"; clicked => { root.locale = "en"; root.set-locale(root.locale); } }
-            Button { width: 46px; text: "中文"; clicked => { root.locale = "zh"; root.set-locale(root.locale); } }
+            Button { width: 42px; text: "EN"; accessible-label: "Switch to English"; clicked => { root.locale = "en"; root.set-locale(root.locale); } }
+            Button { width: 46px; text: "中文"; accessible-label: "切换到中文"; clicked => { root.locale = "zh"; root.set-locale(root.locale); } }
         }
 
         if root.error-text != "" : Rectangle {

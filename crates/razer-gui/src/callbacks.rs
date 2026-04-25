@@ -39,8 +39,9 @@ fn wire_backend_callbacks(ui: &AppWindow, backend: SharedBackend) {
 
     let weak_ui = ui.as_weak();
     let locale_backend = backend.clone();
-    ui.on_set_locale(move |_locale| {
+    ui.on_set_locale(move |locale| {
         if let Some(ui) = weak_ui.upgrade() {
+            ui.set_locale(locale);
             refresh_language(&ui, &locale_backend);
         }
     });
