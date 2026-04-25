@@ -1,9 +1,9 @@
 use clap::{Parser, Subcommand, ValueEnum};
 use razer_core::{commands, device::Device, packet::Packet, types::*};
 
-/// RazerLight CLI — debug and control tool for Razer Blade laptops
+/// RHelper CLI — debug and control tool for Razer Blade laptops
 #[derive(Parser)]
-#[command(name = "razer-cli", version, about)]
+#[command(name = "rhelper-cli", version, about)]
 struct Cli {
     /// USB Product ID override (hex, e.g. 0x029f). Auto-detects if omitted.
     #[arg(short, long, value_parser = parse_hex_u16)]

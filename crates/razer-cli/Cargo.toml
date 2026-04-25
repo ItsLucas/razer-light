@@ -1,10 +1,10 @@
 [package]
-name = "razer-cli"
+name = "rhelper-cli"
 version.workspace = true
 edition.workspace = true
 
 [[bin]]
-name = "razer-cli"
+name = "rhelper-cli"
 path = "src/main.rs"
 
 [dependencies]
