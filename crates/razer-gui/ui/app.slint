@@ -49,6 +49,7 @@ component EmptySlot inherits Rectangle {
 
 component ToggleSlot inherits Rectangle {
     in-out property <bool> checked;
+    in property <string> label: "Max";
     callback toggled(bool);
 
     min-width: 0px;
@@ -64,7 +65,7 @@ component ToggleSlot inherits Rectangle {
         padding-left: 8px;
         padding-right: 8px;
         CheckBox {
-            text: "Max";
+            text: root.label;
             checked: root.checked;
             toggled => {
                 root.checked = self.checked;
@@ -176,12 +177,13 @@ component PanelSection inherits Rectangle {
 }
 
 export component AppWindow inherits Window {
-    title: "RazerLight";
+    title: root.translate(root.locale, "app.name");
     width: 430px;
     height: 650px;
     background: #1e1e1e;
 
     in-out property <bool> connected: false;
+    in-out property <string> locale: "en";
     in-out property <string> device-name: "No device";
     in-out property <string> status-text: "Disconnected";
     in-out property <string> error-text: "";
@@ -202,6 +204,8 @@ export component AppWindow inherits Window {
     in-out property <bool> max-fan-enabled: false;
     in-out property <int> active-page: 0;
 
+    pure callback translate(string, string) -> string;
+    callback set-locale(string);
     callback connect();
     callback refresh();
     callback set-perf-mode(string);
@@ -221,7 +225,7 @@ export component AppWindow inherits Window {
         HorizontalLayout {
             height: 26px;
             Text {
-                text: "RazerLight";
+                text: root.translate(root.locale, "app.name");
                 color: #f5f5f5;
                 font-size: 14px;
                 font-weight: 800;
@@ -235,6 +239,8 @@ export component AppWindow inherits Window {
                 horizontal-alignment: right;
                 vertical-alignment: center;
             }
+            Button { width: 42px; text: "EN"; clicked => { root.locale = "en"; root.set-locale(root.locale); } }
+            Button { width: 46px; text: "中文"; clicked => { root.locale = "zh"; root.set-locale(root.locale); } }
         }
 
         if root.error-text != "" : Rectangle {
@@ -255,57 +261,57 @@ export component AppWindow inherits Window {
         HorizontalLayout {
             height: 28px;
             spacing: 6px;
-            TabButton { label: "Performance"; selected: root.active-page == 0; clicked => { root.active-page = 0; } }
-            TabButton { label: "Lighting"; selected: root.active-page == 1; clicked => { root.active-page = 1; } }
-            TabButton { label: "Power"; selected: root.active-page == 2; clicked => { root.active-page = 2; } }
+            TabButton { label: root.translate(root.locale, "tab.performance"); selected: root.active-page == 0; clicked => { root.active-page = 0; } }
+            TabButton { label: root.translate(root.locale, "tab.lighting"); selected: root.active-page == 1; clicked => { root.active-page = 1; } }
+            TabButton { label: root.translate(root.locale, "tab.power"); selected: root.active-page == 2; clicked => { root.active-page = 2; } }
         }
 
         if root.active-page == 0 : VerticalLayout {
             spacing: 5px;
             PanelSection {
-                title: "Mode: " + root.perf-mode;
+                title: root.translate(root.locale, "section.mode") + ": " + root.translate(root.locale, root.perf-mode);
                 value: root.status-text;
 
                 HorizontalLayout {
                     spacing: 6px;
-                    ChoiceButton { label: "Silent"; detail: "Quiet"; selected: root.perf-mode == "Silent"; clicked => { root.set-perf-mode("Silent"); } }
-                    ChoiceButton { label: "Balanced"; detail: "Daily"; selected: root.perf-mode == "Balanced"; clicked => { root.set-perf-mode("Balanced"); } }
-                    ChoiceButton { label: "Turbo"; detail: "Fast"; selected: root.perf-mode == "Performance"; clicked => { root.set-perf-mode("Performance"); } }
+                    ChoiceButton { label: root.translate(root.locale, "Silent"); detail: root.translate(root.locale, "detail.quiet"); selected: root.perf-mode == "Silent"; clicked => { root.set-perf-mode("Silent"); } }
+                    ChoiceButton { label: root.translate(root.locale, "Balanced"); detail: root.translate(root.locale, "detail.daily"); selected: root.perf-mode == "Balanced"; clicked => { root.set-perf-mode("Balanced"); } }
+                    ChoiceButton { label: root.translate(root.locale, "Performance"); detail: root.translate(root.locale, "detail.fast"); selected: root.perf-mode == "Performance"; clicked => { root.set-perf-mode("Performance"); } }
                     EmptySlot { }
                 }
                 HorizontalLayout {
                     spacing: 6px;
-                    ChoiceButton { label: "Custom"; detail: "Tuned"; selected: root.perf-mode == "Custom"; clicked => { root.set-perf-mode("Custom"); } }
-                    ChoiceButton { label: "Battery"; detail: "Saver"; selected: root.perf-mode == "Battery Saver"; clicked => { root.set-perf-mode("Battery Saver"); } }
-                    ChoiceButton { label: "Hyper"; detail: "Boost"; selected: root.perf-mode == "Hyperboost"; clicked => { root.set-perf-mode("Hyperboost"); } }
+                    ChoiceButton { label: root.translate(root.locale, "Custom"); detail: root.translate(root.locale, "detail.tuned"); selected: root.perf-mode == "Custom"; clicked => { root.set-perf-mode("Custom"); } }
+                    ChoiceButton { label: root.translate(root.locale, "Battery Saver"); detail: root.translate(root.locale, "detail.saver"); selected: root.perf-mode == "Battery Saver"; clicked => { root.set-perf-mode("Battery Saver"); } }
+                    ChoiceButton { label: root.translate(root.locale, "Hyperboost"); detail: root.translate(root.locale, "detail.boost"); selected: root.perf-mode == "Hyperboost"; clicked => { root.set-perf-mode("Hyperboost"); } }
                     EmptySlot { }
                 }
             }
 
             PanelSection {
-                title: "Fans: " + root.fan-mode;
+                title: root.translate(root.locale, "section.fans") + ": " + root.translate(root.locale, root.fan-mode);
                 value: root.cpu-fan-text;
 
                 Text { text: root.gpu-fan-text; color: #d8d8d8; font-size: 11px; }
                 HorizontalLayout {
                     spacing: 6px;
-                    ChoiceButton { label: "Auto"; detail: "Curve"; selected: root.fan-mode == "Auto"; clicked => { root.set-fan-mode("Auto"); } }
-                    ChoiceButton { label: "Manual"; detail: "RPM"; selected: root.fan-mode == "Manual"; clicked => { root.set-fan-mode("Manual"); } }
-                    ToggleSlot { checked: root.max-fan-enabled; toggled(enabled) => { root.max-fan-enabled = enabled; root.set-max-fan(enabled); } }
+                    ChoiceButton { label: root.translate(root.locale, "Auto"); detail: root.translate(root.locale, "detail.curve"); selected: root.fan-mode == "Auto"; clicked => { root.set-fan-mode("Auto"); } }
+                    ChoiceButton { label: root.translate(root.locale, "Manual"); detail: root.translate(root.locale, "detail.rpm"); selected: root.fan-mode == "Manual"; clicked => { root.set-fan-mode("Manual"); } }
+                    ToggleSlot { label: root.translate(root.locale, "Max"); checked: root.max-fan-enabled; toggled(enabled) => { root.max-fan-enabled = enabled; root.set-max-fan(enabled); } }
                     EmptySlot { }
                 }
                 HorizontalLayout {
                     height: 30px;
                     spacing: 8px;
                     Slider { width: 310px; minimum: 0; maximum: 5500; value: root.fan-target-rpm; changed(value) => { root.fan-target-rpm = value; } }
-                    Button { width: 82px; text: "Apply"; clicked => { root.apply-fan-rpm(root.fan-target-rpm); } }
+                    Button { width: 82px; text: root.translate(root.locale, "action.apply"); clicked => { root.apply-fan-rpm(root.fan-target-rpm); } }
                     Rectangle { horizontal-stretch: 1; }
                 }
             }
 
             PanelSection {
-                title: "Temperatures";
-                value: "Monitoring";
+                title: root.translate(root.locale, "section.temperatures");
+                value: root.translate(root.locale, "value.monitoring");
 
                 HorizontalLayout {
                     spacing: 6px;
@@ -317,23 +323,23 @@ export component AppWindow inherits Window {
             }
 
             PanelSection {
-                title: "CPU / GPU Boost";
-                value: root.perf-mode == "Custom" ? "Custom" : "Custom required";
+                title: root.translate(root.locale, "section.boost");
+                value: root.perf-mode == "Custom" ? root.translate(root.locale, "Custom") : root.translate(root.locale, "value.custom_required");
 
-                Text { text: "CPU: " + root.cpu-boost; color: #d8d8d8; font-size: 11px; }
+                Text { text: root.translate(root.locale, "CPU") + ": " + root.translate(root.locale, root.cpu-boost); color: #d8d8d8; font-size: 11px; }
                 HorizontalLayout {
                     spacing: 6px;
-                    ChoiceButton { label: "Low"; detail: "CPU"; selected: root.cpu-boost == "Low"; clicked => { root.set-cpu-boost("Low"); } }
-                    ChoiceButton { label: "Medium"; detail: "CPU"; selected: root.cpu-boost == "Medium"; clicked => { root.set-cpu-boost("Medium"); } }
-                    ChoiceButton { label: "High"; detail: "CPU"; selected: root.cpu-boost == "High"; clicked => { root.set-cpu-boost("High"); } }
-                    ChoiceButton { label: "Boost"; detail: "CPU"; selected: root.cpu-boost == "Boost"; clicked => { root.set-cpu-boost("Boost"); } }
+                    ChoiceButton { label: root.translate(root.locale, "Low"); detail: root.translate(root.locale, "CPU"); selected: root.cpu-boost == "Low"; clicked => { root.set-cpu-boost("Low"); } }
+                    ChoiceButton { label: root.translate(root.locale, "Medium"); detail: root.translate(root.locale, "CPU"); selected: root.cpu-boost == "Medium"; clicked => { root.set-cpu-boost("Medium"); } }
+                    ChoiceButton { label: root.translate(root.locale, "High"); detail: root.translate(root.locale, "CPU"); selected: root.cpu-boost == "High"; clicked => { root.set-cpu-boost("High"); } }
+                    ChoiceButton { label: root.translate(root.locale, "Boost"); detail: root.translate(root.locale, "CPU"); selected: root.cpu-boost == "Boost"; clicked => { root.set-cpu-boost("Boost"); } }
                 }
-                Text { text: "GPU: " + root.gpu-boost; color: #d8d8d8; font-size: 11px; }
+                Text { text: root.translate(root.locale, "GPU") + ": " + root.translate(root.locale, root.gpu-boost); color: #d8d8d8; font-size: 11px; }
                 HorizontalLayout {
                     spacing: 6px;
-                    ChoiceButton { label: "Low"; detail: "GPU"; selected: root.gpu-boost == "Low"; clicked => { root.set-gpu-boost("Low"); } }
-                    ChoiceButton { label: "Medium"; detail: "GPU"; selected: root.gpu-boost == "Medium"; clicked => { root.set-gpu-boost("Medium"); } }
-                    ChoiceButton { label: "High"; detail: "GPU"; selected: root.gpu-boost == "High"; clicked => { root.set-gpu-boost("High"); } }
+                    ChoiceButton { label: root.translate(root.locale, "Low"); detail: root.translate(root.locale, "GPU"); selected: root.gpu-boost == "Low"; clicked => { root.set-gpu-boost("Low"); } }
+                    ChoiceButton { label: root.translate(root.locale, "Medium"); detail: root.translate(root.locale, "GPU"); selected: root.gpu-boost == "Medium"; clicked => { root.set-gpu-boost("Medium"); } }
+                    ChoiceButton { label: root.translate(root.locale, "High"); detail: root.translate(root.locale, "GPU"); selected: root.gpu-boost == "High"; clicked => { root.set-gpu-boost("High"); } }
                     EmptySlot { }
                 }
             }
@@ -343,26 +349,26 @@ export component AppWindow inherits Window {
             spacing: 5px;
             PanelSection {
                 title: root.keyboard-text;
-                value: "Keyboard";
+                value: root.translate(root.locale, "value.keyboard");
 
                 HorizontalLayout {
                     height: 30px;
                     spacing: 8px;
                     Slider { width: 310px; minimum: 0; maximum: 100; value: root.keyboard-brightness; changed(value) => { root.keyboard-brightness = value; } }
-                    Button { width: 82px; text: "Apply"; clicked => { root.set-keyboard-brightness(root.keyboard-brightness); } }
+                    Button { width: 82px; text: root.translate(root.locale, "action.apply"); clicked => { root.set-keyboard-brightness(root.keyboard-brightness); } }
                     Rectangle { horizontal-stretch: 1; }
                 }
             }
 
             PanelSection {
-                title: "Logo";
-                value: root.logo-mode;
+                title: root.translate(root.locale, "section.logo");
+                value: root.translate(root.locale, root.logo-mode);
 
                 HorizontalLayout {
                     spacing: 6px;
-                    ChoiceButton { label: "Off"; detail: "Logo"; selected: root.logo-mode == "Off"; clicked => { root.set-logo-mode("Off"); } }
-                    ChoiceButton { label: "Static"; detail: "Logo"; selected: root.logo-mode == "Static"; clicked => { root.set-logo-mode("Static"); } }
-                    ChoiceButton { label: "Breathe"; detail: "Logo"; selected: root.logo-mode == "Breathing"; clicked => { root.set-logo-mode("Breathing"); } }
+                    ChoiceButton { label: root.translate(root.locale, "Off"); detail: root.translate(root.locale, "section.logo"); selected: root.logo-mode == "Off"; clicked => { root.set-logo-mode("Off"); } }
+                    ChoiceButton { label: root.translate(root.locale, "Static"); detail: root.translate(root.locale, "section.logo"); selected: root.logo-mode == "Static"; clicked => { root.set-logo-mode("Static"); } }
+                    ChoiceButton { label: root.translate(root.locale, "Breathing"); detail: root.translate(root.locale, "section.logo"); selected: root.logo-mode == "Breathing"; clicked => { root.set-logo-mode("Breathing"); } }
                     EmptySlot { }
                 }
             }
@@ -372,7 +378,7 @@ export component AppWindow inherits Window {
             spacing: 5px;
             PanelSection {
                 title: root.battery-text;
-                value: "Charge limit";
+                value: root.translate(root.locale, "value.charge_limit");
 
                 HorizontalLayout {
                     height: 30px;
@@ -389,7 +395,7 @@ export component AppWindow inherits Window {
                     }
                     Text {
                         width: 82px;
-                        text: root.battery-limit == 100 ? "Off" : root.battery-limit + "%";
+                        text: root.battery-limit == 100 ? root.translate(root.locale, "Off") : root.battery-limit + "%";
                         color: #f1f1f1;
                         font-size: 13px;
                         font-weight: 700;
@@ -407,7 +413,7 @@ export component AppWindow inherits Window {
                     Text { text: "70"; color: #9f9f9f; font-size: 10px; horizontal-alignment: center; }
                     Text { text: "75"; color: #9f9f9f; font-size: 10px; horizontal-alignment: center; }
                     Text { text: "80"; color: #9f9f9f; font-size: 10px; horizontal-alignment: center; }
-                    Text { text: "Off"; color: #9f9f9f; font-size: 10px; horizontal-alignment: right; }
+                    Text { text: root.translate(root.locale, "Off"); color: #9f9f9f; font-size: 10px; horizontal-alignment: right; }
                     Rectangle { width: 90px; }
                 }
             }
@@ -417,9 +423,9 @@ export component AppWindow inherits Window {
         Rectangle { height: 1px; background: #343434; }
         HorizontalLayout {
             height: 30px;
-            Text { text: "Version 0.1.0"; color: #8f8f8f; font-size: 11px; vertical-alignment: center; }
+            Text { text: root.translate(root.locale, "version"); color: #8f8f8f; font-size: 11px; vertical-alignment: center; }
             Rectangle { width: 1px; }
-            Button { text: root.connected ? "Refresh" : "Connect"; clicked => { root.connected ? root.refresh() : root.connect(); } }
+            Button { text: root.connected ? root.translate(root.locale, "action.refresh") : root.translate(root.locale, "action.connect"); clicked => { root.connected ? root.refresh() : root.connect(); } }
         }
     }
 }
