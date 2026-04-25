@@ -1,7 +1,7 @@
 use crate::detect::{DeviceDescriptor, SUPPORTED_DEVICES};
 use crate::packet::Packet;
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 use std::{thread, time::Duration};
 
 pub const RAZER_VID: u16 = 0x1532;
@@ -157,10 +157,7 @@ impl Device {
                 vid: i.vendor_id(),
                 pid: i.product_id(),
                 path: i.path().to_string_lossy().into_owned(),
-                manufacturer: i
-                    .manufacturer_string()
-                    .unwrap_or_default()
-                    .to_string(),
+                manufacturer: i.manufacturer_string().unwrap_or_default().to_string(),
                 product: i.product_string().unwrap_or_default().to_string(),
                 interface_number: i.interface_number(),
                 usage_page: i.usage_page(),
