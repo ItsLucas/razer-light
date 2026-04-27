@@ -59,6 +59,20 @@ cargo run -p rhelper-cli --bin rhelper-cli -- perf get
 cargo run -p rhelper-cli --bin rhelper-cli -- fan get
 ```
 
+## Kernel module (hwmon) / 内核模块
+
+An optional out-of-tree Linux kernel module lives in
+[`kernel/razer-blade-hwmon/`](kernel/razer-blade-hwmon/). It binds as a
+HID driver to the same Razer Blade VID/PIDs and exposes fan RPMs and
+fan-mode control via the standard `hwmon` sysfs interface, so `sensors`,
+`fancontrol`, etc. work out of the box. See its README for build and
+install instructions.
+
+`kernel/razer-blade-hwmon/` 目录下提供一个可选的 Linux 外部内核模块。
+它作为 HID 驱动绑定到相同的 Razer Blade VID/PID，并通过标准 `hwmon`
+sysfs 接口暴露风扇转速和风扇模式控制，使 `sensors`、`fancontrol`
+等工具开箱即用。构建与安装请参见其 README。
+
 ## Notes / 注意事项
 
 - Hardware support depends on the Razer Blade model and firmware command compatibility.
